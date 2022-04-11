@@ -8,9 +8,9 @@
 
 ### 介绍
 
-Vant 是**有赞前端团队**开源的移动端组件库，于 2017 年开源，已持续维护 4 年时间。Vant 对内承载了有赞所有核心业务，对外服务十多万开发者，是业界主流的移动端组件库之一。
+Vant 是一个**轻量、可靠的移动端组件库**，于 2017 年开源。
 
-目前 Vant 官方提供了 [Vue 2 版本](https://vant-contrib.gitee.io/vant)、[Vue 3 版本](https://vant-contrib.gitee.io/vant/v3)和[微信小程序版本](http://vant-contrib.gitee.io/vant-weapp)，并由社区团队维护 [React 版本](https://github.com/mxdi9i7/vant-react)和[支付宝小程序版本](https://github.com/ant-move/Vant-Aliapp)。
+目前 Vant 官方提供了 [Vue 2 版本](https://vant-contrib.gitee.io/vant/v2)、[Vue 3 版本](https://vant-contrib.gitee.io/vant)和[微信小程序版本](http://vant-contrib.gitee.io/vant-weapp)，并由社区团队维护 [React 版本](https://github.com/3lang3/react-vant)和[支付宝小程序版本](https://github.com/ant-move/Vant-Aliapp)。
 
 ### 预览
 
@@ -25,9 +25,9 @@ Vant 是**有赞前端团队**开源的移动端组件库，于 2017 年开源�
 ### 链接
 
 - [意见反馈](https://github.com/youzan/vant-weapp/issues)
-- [加入我们](https://job.youzan.com)
-- [更新日志](#/changelog)
-- [Vant Vue 版](https://github.com/youzan/vant)
+- [设计资源](https://vant-contrib.gitee.io/vant/#/zh-CN/design)
+- [更新日志](https://vant-contrib.gitee.io/vant-weapp/#/changelog)
+- [官方示例](https://github.com/youzan/vant-demo)
 
 ## 贡献
 
@@ -44,7 +44,7 @@ Vant 是**有赞前端团队**开源的移动端组件库，于 2017 年开源�
 感谢以下小伙伴们为 Vant Weapp 发展做出的贡献：
 
 <a href="https://github.com/youzan/vant-weapp/graphs/contributors">
-  <img src="https://opencollective.com/vant-weapp/contributors.svg?width=890&button=false" alt="contributors">
+  <img src="https://opencollective.com/vant-weapp/contributors.svg?width=890&button=false" alt="contributors" style="width: 100%; margin: 16px 0">
 </a>
 
 ### 贡献代码

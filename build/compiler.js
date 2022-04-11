@@ -7,6 +7,7 @@ const rename = require('gulp-rename');
 const postcss = require('gulp-postcss');
 const ts = require('gulp-typescript');
 const util = require('util');
+const merge2 = require('merge2');
 const exec = util.promisify(require('child_process').exec);
 
 const src = path.resolve(__dirname, '../packages');
@@ -54,26 +55,31 @@ const lessCompiler = (dist) =>
 
 const tsCompiler = (dist, config) =>
   function compileTs() {
-    const tsProject = ts.createProject(config);
-    return tsProject
-      .src()
-      .pipe(tsProject())
-      .js.pipe(
-        insert.transform((contents, file) => {
-          if (dist === exampleDistDir && file.path.includes('/demo/')) {
-            const iconConfig = '@vant/icons/src/config';
-            contents = contents.replace(
-              iconConfig,
-              path.relative(
-                path.dirname(file.path),
-                `${exampleDistDir}/${iconConfig}`
-              )
-            );
-          }
-          return contents;
-        })
-      )
-      .pipe(gulp.dest(dist));
+    const tsProject = ts.createProject(config, {
+      declaration: true,
+    });
+    const tsResult = tsProject.src().pipe(tsProject());
+
+    return merge2(
+      tsResult.js
+        .pipe(
+          insert.transform((contents, file) => {
+            if (dist === exampleDistDir && file.path.includes(`${path.sep}demo${path.sep}`)) {
+              const iconConfig = '@vant/icons/src/config';
+              contents = contents.replace(
+                iconConfig,
+                path.relative(
+                  path.dirname(file.path),
+                  `${exampleDistDir}/${iconConfig}`
+                ).replace(/\\/g, '/')
+              );
+            }
+            return contents;
+          })
+        )
+        .pipe(gulp.dest(dist)),
+      tsResult.dts.pipe(gulp.dest(dist))
+    );
   };
 
 const copier = (dist, ext) =>
@@ -86,7 +92,7 @@ const copier = (dist, ext) =>
       .src(srcPath)
       .pipe(
         insert.transform((contents, file) => {
-          if (ext === 'json' && file.path.includes('/demo/')) {
+          if (ext === 'json' &&  file.path.includes(`${path.sep}demo${path.sep}`)  ) {
             contents = contents.replace('/example', '');
           }
           return contents;
@@ -134,35 +140,39 @@ tasks.buildExample = gulp.series(
         .pipe(gulp.dest(`${exampleDistDir}/@vant/icons`)),
     () => {
       const appJson = JSON.parse(fs.readFileSync(exampleAppJsonPath));
-      appJson.pages.forEach((path) => {
-        const component = path.replace(/(pages\/|\/index)/g, '');
-        const writeFiles = [
-          {
-            path: `${examplePagesDir}/${component}/index.js`,
-            contents: "import Page from '../../common/page';\n\nPage();",
-          },
-          {
-            path: `${examplePagesDir}/${component}/index.wxml`,
-            contents: `<van-${component}-demo />`,
-          },
-        ];
-        writeFiles.forEach((writeFile) => {
-          fs.access(writeFile.path, fs.constants.F_OK, (fileNotExists) => {
-            if (fileNotExists) {
-              fs.writeFile(writeFile.path, writeFile.contents, (err) => {
-                if (err) {
-                  throw err;
-                }
-              });
-            }
+      const excludePages = ['pages/dashboard/index'];
+      appJson.pages
+        .filter((page) => page.indexOf(excludePages) === -1)
+        .forEach((path) => {
+          const component = path.replace(/(pages\/|\/index)/g, '');
+          const writeFiles = [
+            {
+              path: `${examplePagesDir}/${component}/index.js`,
+              contents: "import Page from '../../common/page';\n\nPage();",
+            },
+            {
+              path: `${examplePagesDir}/${component}/index.wxml`,
+              contents: `<van-${component}-demo />`,
+            },
+          ];
+          writeFiles.forEach((writeFile) => {
+            fs.access(writeFile.path, fs.constants.F_OK, (fileNotExists) => {
+              if (fileNotExists) {
+                fs.writeFile(writeFile.path, writeFile.contents, (err) => {
+                  if (err) {
+                    throw err;
+                  }
+                });
+              }
+            });
           });
         });
-      });
     },
     () => {
       gulp.watch(`${src}/**/*.less`, lessCompiler(exampleDistDir));
       gulp.watch(`${src}/**/*.wxml`, copier(exampleDistDir, 'wxml'));
       gulp.watch(`${src}/**/*.wxs`, copier(exampleDistDir, 'wxs'));
+      gulp.watch(`${src}/**/*.ts`, tsCompiler(exampleDistDir, exampleConfig));
       gulp.watch(`${src}/**/*.json`, copier(exampleDistDir, 'json'));
     }
   )
